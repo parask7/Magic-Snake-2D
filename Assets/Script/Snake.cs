@@ -14,12 +14,23 @@ public class Snake : MonoBehaviour
         segments.Add(transform);
     }
 
+    private void OnEnable()
+    {
+        SwipeInput.OnSwipe += HandleSwipe;
+    }
+
+    private void OnDisable()
+    {
+        SwipeInput.OnSwipe -= HandleSwipe;
+    }
+
     private void Update()
     {
         // Do not take input if game is not running
         if (!GameManager.Instance.IsGameRunning())
             return;
 
+        // Keyboard input (PC)
         if (Input.GetKeyDown(KeyCode.W) && direction != Vector2.down)
             direction = Vector2.up;
         else if (Input.GetKeyDown(KeyCode.S) && direction != Vector2.up)
@@ -27,6 +38,22 @@ public class Snake : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.A) && direction != Vector2.right)
             direction = Vector2.left;
         else if (Input.GetKeyDown(KeyCode.D) && direction != Vector2.left)
+            direction = Vector2.right;
+    }
+
+    private void HandleSwipe(Vector2 swipeDir)
+    {
+        if (!GameManager.Instance.IsGameRunning())
+            return;
+
+        // Same direction rules as keyboard
+        if (swipeDir == Vector2.up && direction != Vector2.down)
+            direction = Vector2.up;
+        else if (swipeDir == Vector2.down && direction != Vector2.up)
+            direction = Vector2.down;
+        else if (swipeDir == Vector2.left && direction != Vector2.right)
+            direction = Vector2.left;
+        else if (swipeDir == Vector2.right && direction != Vector2.left)
             direction = Vector2.right;
     }
 
@@ -56,7 +83,6 @@ public class Snake : MonoBehaviour
         segment.position = segments[segments.Count - 1].position;
         segments.Add(segment);
 
-        // OLD LOGIC: score = snake length - 1
         GameManager.Instance.AddScore(1);
     }
 
@@ -67,7 +93,7 @@ public class Snake : MonoBehaviour
 
         if (other.CompareTag("Food"))
         {
-            Grow(); // food is NOT destroyed
+            Grow(); // food is NOT destroyed (your old logic)
         }
         else if (other.CompareTag("Obstacle"))
         {

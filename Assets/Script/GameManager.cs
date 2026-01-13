@@ -3,13 +3,14 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     [Header("UI")]
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI highScoreText;   // NEW
+    public TextMeshProUGUI highScoreText;
 
     [Header("Start Panel")]
     public GameObject startPanel;
@@ -21,11 +22,16 @@ public class GameManager : MonoBehaviour
     public Button restartButton;
     public Button exitButton;
 
+    [Header("Obstacle")]
+    public GameObject obstaclePrefab;
+    public BoxCollider2D spawnArea;
+    private bool isObstacleSpawned = false;
+
     private int score;
-    private int highScore;                  // NEW
+    private int highScore;
     private bool isGameRunning;
 
-    private const string HIGH_SCORE_KEY = "HighScore"; // NEW
+    private const string HIGH_SCORE_KEY = "HighScore";
 
     private void Awake()
     {
@@ -139,5 +145,28 @@ public class GameManager : MonoBehaviour
     public bool IsGameRunning()
     {
         return isGameRunning;
+    }
+
+    private void ObstacleSpawn()
+    {
+        Bounds bounds = this.spawnArea.bounds;
+
+        float x = Mathf.Round(Random.Range(bounds.min.x, bounds.max.x));
+        float y = Mathf.Round(Random.Range(bounds.min.y, bounds.max.y));
+        Instantiate(obstaclePrefab, new Vector3(x, y, 0.0f), Quaternion.identity);
+
+    }
+
+    private void Update()
+    {
+        if (isGameRunning && score != 0 && score % 5 == 0 && !isObstacleSpawned)
+        {
+            ObstacleSpawn();
+            isObstacleSpawned = true;
+        }
+        else if (score % 5 != 0)
+        {
+            isObstacleSpawned = false;
+        }
     }
 }
